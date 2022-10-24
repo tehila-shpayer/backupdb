@@ -87,10 +87,12 @@ pipeline
 					echo "The length of variable: \$${DAY} is 0 (zero)!"
 					echo "Script will now exit..."
 					exit 4
-					else
-					echo "here"
+				fi
+				if [ ! -z ${DAY}]; then
+					echo "hello"
 				fi
 				}
+
 				
 				check_config
 
