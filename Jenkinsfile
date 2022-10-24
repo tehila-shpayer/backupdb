@@ -226,10 +226,10 @@ pipeline
 				if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
 				if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
 				done
-				if [ same_day -gt 1 ]; then clean_same_day; fi
-				if [ num_days -gt 7 ]; then clean_day; fi
-				if [ num_weeks -gt 4 ]; then clean_week; fi
-				if [ num_months -gt 12 ]; then clean_month; fi
+				if [ $same_day -gt 1 ]; then clean_same_day; fi
+				if [ $num_days -gt 7 ]; then clean_day; fi
+				if [ $num_weeks -gt 4 ]; then clean_week; fi
+				if [ $num_months -gt 12 ]; then clean_month; fi
 				
 				echo $num_years $num_months $num_weeks $num_days $same_day
 				cd $CURR_DIR
