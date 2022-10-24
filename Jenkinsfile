@@ -19,7 +19,7 @@ pipeline
 
 	environment {
 		//setup properly the variables below that will be used in this script
-		DEPLOY_SERVER = 'Minnie'
+		DEPLOY_SERVER = 'donald'
 		// PM2_NAME = 'checkin-t'
 		// DOMAIN_NAME = 'checkin-t.carmel6000.com'
 		// NODE_ENV = ''
