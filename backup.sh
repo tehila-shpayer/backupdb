@@ -120,6 +120,7 @@ check_config() {
 		echo "Script will now exit..."
 		exit 5
 	fi
+
 	echo Backing up at $BACKUPS_DIR/$TIMESTAMP
 	# if [ -d $BACKUPS_DIR/$TIMESTAMP ]; then
 	# 	TT=$(date "+%H-%M-%S")
