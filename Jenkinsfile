@@ -39,9 +39,9 @@ pipeline
 				// customWorkspace "www/prod/${PM2_NAME}"
 			}
                 }
-	        options {
-        	        skipDefaultCheckout false
-        	}
+	        // options {
+        	//         skipDefaultCheckout false
+        	// }
 
 		steps
             	{
