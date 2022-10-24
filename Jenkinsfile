@@ -51,7 +51,7 @@ pipeline
 			sh '''
 			TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S") 
 			DAYS="Mon Tue Wed Thu Fri Sat Sun"
-			# TOKENS="mysql8aws mysql8a mysql8b" # For any additional entry add the appropriate
+			TOKENS="mysql8aws mysql8a mysql8b" # For any additional entry add the appropriate
 			'''
 			
 			// '''
