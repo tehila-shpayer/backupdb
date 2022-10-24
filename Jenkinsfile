@@ -55,7 +55,7 @@ pipeline
 			
 			
 			
-			ROOT_BAKUPS_DIR="C:/backup"
+			ROOT_BAKUPS_DIR="/home/hilma/tehila/backups"
 			BACKUP_DAY="All" # The day of the week that the backup should be taken. All, Mon, Tue, Wed, Thu, Fri, Sat, Sun
 
 			check_config() {
