@@ -171,9 +171,9 @@ pipeline
 				d0=${1::10}
 				d1=${2::10}
 
-				if [ "${d0}" \< "${d1}" ]; then
+				if [ "${d0}" \\< "${d1}" ]; then
 					return 1
-				elif [ "${d0}" \> "${d1}" ]; then
+				elif [ "${d0}" \\> "${d1}" ]; then
 					return 2
 				fi
 				return 0
