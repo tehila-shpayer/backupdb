@@ -9,7 +9,7 @@ void setBuildStatus(String message, String state, String gitUrl) {
 }
 
 
-
+//git credentials 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
 pipeline
 {
 	agent {label "Minnie"} 
@@ -39,14 +39,14 @@ pipeline
 				// customWorkspace "www/prod/${PM2_NAME}"
 			}
                 }
-	        // options {
-        	//         skipDefaultCheckout false
-        	// }
+	        options {
+        	        skipDefaultCheckout false
+        	}
 
 		steps
             	{
 		script{
-			'echo hello world'
+			echo 'hello world'
 		}
 // 		sh 'node --version'
 //                 //put here all the required commands to build your project as per the example below
