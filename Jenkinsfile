@@ -20,7 +20,7 @@ pipeline
 	environment {
 		//setup properly the variables below that will be used in this script
 		DEPLOY_SERVER = 'donald'
-		// PM2_NAME = 'checkin-t'
+		PM2_NAME = 'backupdb'
 		// DOMAIN_NAME = 'checkin-t.carmel6000.com'
 		// NODE_ENV = ''
 		// CI=false
@@ -36,7 +36,7 @@ pipeline
 		agent {
 			node {
 				label "${DEPLOY_SERVER}"
-				// customWorkspace "www/prod/${PM2_NAME}"
+				customWorkspace "www/prod/${PM2_NAME}"
 			}
                 }
 	        options {
