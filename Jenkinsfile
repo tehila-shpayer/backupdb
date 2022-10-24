@@ -50,9 +50,10 @@ pipeline
 			echo 'hello world'
 			sh '''
 			TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S") # Do NOT modify!
-			DAYS=(Mon Tue Wed Thu Fri Sat Sun)
-			# TOKENS="mysql8aws mysql8a mysql8b" # For any additional entry add the appropriate
 			'''
+			// DAYS=(Mon Tue Wed Thu Fri Sat Sun)
+			// # TOKENS="mysql8aws mysql8a mysql8b" # For any additional entry add the appropriate
+			
 			
 			// '''
 			// ROOT_BAKUPS_DIR="C:/backup"
