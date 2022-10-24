@@ -81,7 +81,9 @@ pipeline
 				fi
 
 				BACKUPS_DIR=$ROOT_BAKUPS_DIR
-				DAY= $BACKUP_DAY
+				DAY= "BACKUP_DAY"
+				echo $DAY
+				echo "${DAY}"
 				if [ -z $DAY ]; then
 					echo "The length of variable: \$${DAY} is 0 (zero)!"
 					echo "Script will now exit..."
@@ -115,7 +117,7 @@ pipeline
 				# 	TT=$(date "+%H-%M-%S")
 				# 	mv $BACKUPS_DIR/$TIMESTAMP $BACKUPS_DIR/${TIMESTAMP}_${TT}
 				# fi
-				
+
 				mkdir -p $BACKUPS_DIR/$TIMESTAMP
 				BACKUPS_DIR=$BACKUPS_DIR/$TIMESTAMP
 			}
