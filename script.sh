@@ -64,15 +64,15 @@
         # 	exit 5
         # fi
 
-        echo Backing up at $BACKUPS_DIR/$TIMESTAMP
+        # echo Backing up at $BACKUPS_DIR/$TIMESTAMP
 
         # if [ -d $BACKUPS_DIR/$TIMESTAMP ]; then
         # 	TT=$(date "+%H-%M-%S")
         # 	mv $BACKUPS_DIR/$TIMESTAMP $BACKUPS_DIR/${TIMESTAMP}_${TT}
         # fi
 
-        mkdir -p $BACKUPS_DIR/$TIMESTAMP
-        BACKUPS_DIR=$BACKUPS_DIR/$TIMESTAMP
+        # mkdir -p $BACKUPS_DIR/$TIMESTAMP
+        # BACKUPS_DIR=$BACKUPS_DIR/$TIMESTAMP
     }
 
     get_credential() {
@@ -131,14 +131,14 @@
     }
     main() {
         check_config
-        for tok in ${TOKENS[@]}; do
-            echo BACKING UP ${tok}
-            conduct_backup ${tok}
-        done
-        tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-        rm -rf $BACKUPS_DIR
-        clean_old
-        echo hello world
+        # for tok in ${TOKENS[@]}; do
+        #     echo BACKING UP ${tok}
+        #     conduct_backup ${tok}
+        # done
+        # tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+        # rm -rf $BACKUPS_DIR
+        # clean_old
+        # echo hello world
     }
 
 
