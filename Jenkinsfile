@@ -19,7 +19,7 @@ pipeline
 
 	environment {
 		//setup properly the variables below that will be used in this script
-		DEPLOY_SERVER = 'donald'
+		DEPLOY_SERVER = 'Minnie'
 		// PM2_NAME = 'checkin-t'
 		// DOMAIN_NAME = 'checkin-t.carmel6000.com'
 		// NODE_ENV = ''
@@ -47,7 +47,6 @@ pipeline
             	{
 		//script debug
 		script{
-			echo 'hello world'
 			sh '''
 			TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S") 
 			DAYS="Mon Tue Wed Thu Fri Sat Sun"
@@ -55,7 +54,7 @@ pipeline
 			
 			
 			
-			ROOT_BAKUPS_DIR="backups"
+			ROOT_BAKUPS_DIR="/home/eyar/tehila/backup"
 			if [ ! -d $ROOT_BAKUPS_DIR ]; then
 				echo CREATE $ROOT_BAKUPS_DIR DIRECTORY
 				mkdir -p $ROOT_BAKUPS_DIR
