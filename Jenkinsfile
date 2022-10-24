@@ -55,7 +55,7 @@ pipeline
 			
 			
 			
-			ROOT_BAKUPS_DIR="/home//tehila/backups"
+			ROOT_BAKUPS_DIR="backups"
 			if [ ! -d $ROOT_BAKUPS_DIR ]; then
 				echo CREATE $ROOT_BAKUPS_DIR DIRECTORY
 				mkdir -p $ROOT_BAKUPS_DIR
