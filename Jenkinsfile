@@ -47,7 +47,6 @@ pipeline
             	{
 		//script debug
 		script{
-			echo 'hello world'
 			sh '''
 			TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S") 
 			DAYS="Mon Tue Wed Thu Fri Sat Sun"
