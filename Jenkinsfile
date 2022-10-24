@@ -132,7 +132,7 @@ pipeline
 				SECRET_NAME=${SQLSRV}-${dbName}
 
 				TMP_FILE=tmp.json
-				#getting secret for mongoAdmin
+				# getting secret for mongoAdmin
 				aws secretsmanager get-secret-value --query 'SecretString' --output=text --secret-id ${awsAdminSecretName} >$TMP_FILE
 				if [ $? -ne 0 ]; then
 					echo "ERROR on getting admin secrets for $SQLSRV"

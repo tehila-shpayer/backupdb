@@ -55,7 +55,7 @@ DAYS=(Mon Tue Wed Thu Fri Sat Sun)
 
 # Example of ${TOKENS} variable.
 #TOKENS="MYSQL8A MYSQL8B MYSQL8AWS MONGO"	# For any additional entry add the appropriate
-TOKENS="mysql8aws mysql8a mysql8b" # For any additional entry add the appropriate
+TOKENS="mysql8aws" # mysql8a mysql8b" # For any additional entry add the appropriate
 # <token-uppercase> separating it with a space
 # character from existing tokens.
 
