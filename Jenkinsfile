@@ -19,7 +19,7 @@ pipeline
 
 	environment {
 		//setup properly the variables below that will be used in this script
-		DEPLOY_SERVER = 'donald'
+		DEPLOY_SERVER = 'Minnie'
 		PM2_NAME = 'backupdb'
 		// DOMAIN_NAME = 'checkin-t.carmel6000.com'
 		// NODE_ENV = ''
@@ -29,7 +29,7 @@ pipeline
 		// RUN_NODENV = 'staging'
 		
 	}
-    stages
+    stages       
     {
         stage('Build')
         {
