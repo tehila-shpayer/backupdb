@@ -82,12 +82,12 @@ pipeline
 
 				BACKUPS_DIR=$ROOT_BAKUPS_DIR
 				DAY="BACKUP_DAY"
-				if [ -z ${DAY} ]; then
+				if [ -z $DAY ]; then
 					echo "The length of variable: \$${DAY} is 0 (zero)!"
 					echo "Script will now exit..."
 					exit 4
 				fi
-				if [ ! -z ${DAY}]; then
+				if [ ! -z $DAY]; then
 					echo "hello"
 				fi
 				}
