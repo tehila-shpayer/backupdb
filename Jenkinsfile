@@ -87,7 +87,7 @@ pipeline
 					echo "Script will now exit..."
 					exit 4
 				fi
-				if [ ! -z $DAY]; then
+				if [ ! -z $DAY ]; then
 					echo "hello"
 				fi
 				}
