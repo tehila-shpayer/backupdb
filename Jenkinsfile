@@ -47,7 +47,7 @@ pipeline
             	{
 		//script debug
 		script{
-			sh """#!/bin/bash
+			sh '''#!/bin/bash
 			TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S") 
 			DAYS="Mon Tue Wed Thu Fri Sat Sun"
 			TOKENS="mysql8aws mysql8a mysql8b" # For any additional entry add the appropriate
@@ -83,7 +83,7 @@ pipeline
 				BACKUPS_DIR=$ROOT_BAKUPS_DIR
 				DAY="BACKUP_DAY"
 
-				if [ -z ${!DAY ]; then
+				if [ -z ${!DAY} ]; then
 					echo "The length of variable: \$${DAY} is 0 (zero)!"
 					echo "Script will now exit..."
 					exit 4
