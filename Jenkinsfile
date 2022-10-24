@@ -87,39 +87,27 @@ pipeline
 					echo "The length of variable: \$${DAY} is 0 (zero)!"
 					echo "Script will now exit..."
 					exit 4
-				fi
-
-				if [ ! -z "${DAY}" ]; then
-					echo "hello"
-				fi
-				
+				fi				
 	
-				
-				# FLAG="false"
-				# if [ "${!DAY}" == "All" ]; then
-				# 	FLAG="true"
-				# else
-				# 	for day in "${DAYS[@]}"; do
-				# 		echo Check $day
-				# 		if [ "${day}" == "${!DAY}" ]; then
-				# 			FLAG="true"
-				# 		fi
-				# 	done
-				# fi
+							
+				FLAG="false"
+				if [ "${!DAY}" == "All" ]; then
+					FLAG="true"
+				else
+					for day in "${DAYS[@]}"; do
+						echo Check $day
+						if [ "${day}" == "${!DAY}" ]; then
+							FLAG="true"
+						fi
+					done
+				fi
 
-				# if [ "${FLAG}" == "false" ]; then
-				# 	echo "The value of the \$${DAY} variable is INVALID!"
-				# 	echo "Available options: \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\" "
-				# 	echo "Script will now exit..."
-				# 	exit 5
-				# fi
-
-				echo Backing up at $BACKUPS_DIR/$TIMESTAMP
-
-				# if [ -d $BACKUPS_DIR/$TIMESTAMP ]; then
-				# 	TT=$(date "+%H-%M-%S")
-				# 	mv $BACKUPS_DIR/$TIMESTAMP $BACKUPS_DIR/${TIMESTAMP}_${TT}
-				# fi
+				if [ "${FLAG}" == "false" ]; then
+					echo "The value of the \$${DAY} variable is INVALID!"
+					echo "Available options: \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\" "
+					echo "Script will now exit..."
+					exit 5
+				fi
 
 				mkdir -p $BACKUPS_DIR/$TIMESTAMP
 				BACKUPS_DIR=$BACKUPS_DIR/$TIMESTAMP
@@ -178,6 +166,73 @@ pipeline
 				else
 					echo ERROR on $1 BACKUP!!!!!
 				fi
+			}
+			compare_dates() {
+				d0=${1::10}
+				d1=${2::10}
+
+				if [ "${d0}" \< "${d1}" ]; then
+					return 1
+				elif [ "${d0}" \> "${d1}" ]; then
+					return 2
+				fi
+				return 0
+			}
+			timestamp_diff() {
+				date0=${1::10}
+				time0=${1:(-8)}
+				time0=$(echo ${time0} | tr "-" ":" | tr "_" " ")
+
+				date1=${2::10}
+				time1=${2:(-8)}
+				time1=$(echo ${time1} | tr "-" ":" | tr "_" " ")
+
+				x=$(date --date="${date0} ${time0}" +%s)
+				y=$(date --date="${date1} ${time1}" +%s)
+
+				if [ ${x} -lt ${y} ]; then
+					tmp=${x}
+					x=${y}
+					y=${tmp}
+				fi
+
+				DIFF=$(((${x} - ${y}) / 86400))
+			}
+			get_prev_week() {
+				SUN=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Sunday")
+				MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday")
+				timestamp_diff ${MON} ${SUN}
+				if [ ${DIFF} -eq 1 ]; then
+					MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday -1 week")
+				fi
+			}
+			clean_old() {
+				same_day=0
+				num_days=0
+				num_weeks=0
+				num_months=0
+				num_years=0
+				CURR_DIR=`pwd`
+				cd $ROOT_BAKUPS_DIR
+				for file in *; do
+				echo $file
+				filedate=${file//.tgz/}
+				echo $filedate
+			timestamp_diff $TIMESTAMP $filedate
+			echo $DIFF
+				if [ $DIFF -gt 365 ]; then ((num_years = num_years + 1)); fi
+				if [ $DIFF -gt 30 ] && [ $DIFF -le 365 ]; then ((num_months = num_months + 1)); fi
+				if [ $DIFF -gt 7 ] && [ $DIFF -le 30 ]; then ((num_weeks = num_weeks + 1)); fi
+				if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
+				if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
+				done
+				if [ same_day -gt 1 ]; then clean_same_day; fi
+				if [ num_days -gt 7 ]; then clean_day; fi
+				if [ num_weeks -gt 4 ]; then clean_week; fi
+				if [ num_months -gt 12 ]; then clean_month; fi
+				
+				echo $num_years $num_months $num_weeks $num_days $same_day
+				cd $CURR_DIR
 			}
 			main() {
 				check_config
