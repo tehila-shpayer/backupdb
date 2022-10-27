@@ -73,11 +73,9 @@ get_credential() {
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
-	echo $PORT
-	echo $USER
-	echo $HOST
-	echo ${PASSWORD::2}
 	rm $TMP_FILE
+
+	mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
 
 	# USER=root
 	# PASSWORD=hilma
