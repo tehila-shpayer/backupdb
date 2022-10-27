@@ -80,7 +80,7 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	mongo mongodb+srv://$USER:$PORT mongo.js
+	mongo mongodb+srv://$HOST:$PORT --username $USER --password $PASSWORD mongo.js
 	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
 	# cat tmp
 	# show dbs
