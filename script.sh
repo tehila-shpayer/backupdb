@@ -75,7 +75,7 @@ get_credential() {
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
 
-	mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
+	# mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
 
 	# USER=root
 	# PASSWORD=hilma
@@ -280,7 +280,7 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	get_credential "Mongo"
+	get_credential "mysql8aws"
 	# check_config
 	# for tok in ${TOKENS[@]}; do
 	# 	echo BACKING UP ${tok}
