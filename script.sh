@@ -69,14 +69,19 @@ get_credential() {
 		return 1
 	fi
 
-	USER=$(jq -r '.username' $TMP_FILE)
+	if [ ${1::5} == "mysql"]: then
+		user_param = "user"
+	else
+		user_param="username"
+	fi
+
+	USER=$(jq -r $user_param $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
-	echo $PORT
 	rm $TMP_FILE
 
-	# mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
+	mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT/?authSource=admin
 
 	# USER=root
 	# PASSWORD=hilma
@@ -95,11 +100,12 @@ conduct_backup() {
 			echo DUMPING TABLES SEPARATELY >>$BACKUPS_DIR/$1/log
 
 			
-			if [ ${SQLSRV::5} == "mysql"]; then
+			if [ ${SQLSRV::5} == "mysql" ]; then
 				echo SHOW DATABASES >tmp.sql
 				mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
-			else
+			elif [ ${SQLSRV::5} == "Mongo" ]; then
 				echo SHOW DBS > tmp.sql
+				mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
 			fi	 
 			# for mongo: mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT/?authSource=admin
 			mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
@@ -281,7 +287,7 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	get_credential "mysql8aws"
+	get_credential "Mongo"
 	# check_config
 	# for tok in ${TOKENS[@]}; do
 	# 	echo BACKING UP ${tok}
