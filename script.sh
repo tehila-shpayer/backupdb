@@ -93,7 +93,7 @@ get_credential() {
 		if [ $i -gt 0 ]; then
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
-				mongodump mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --out ./backups/mongo
+				mongodump mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --db $line --out ./backups/mongo/$line
 			fi
 		fi
 		((i = i + 1))
