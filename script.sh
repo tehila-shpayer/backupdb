@@ -68,20 +68,20 @@ get_credential() {
 		echo "ERROR on getting admin secrets for $SQLSRV"
 		return 1
 	fi
-	user_param='.user'
+	user_param='user'
 	if [ ${1::5} == "mysql" ]; then
-		user_param = ".user"
+		user_param = "user"
 	else
-		user_param=".username"
+		user_param="username"
 	fi
 
-	USER=$(jq -r $user_param $TMP_FILE)
+	USER=$(jq -r .$user_param $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	echo $USER
-	ping $USER
+	echo $HOST
+	ping $HOST
 	# mongodump --host=$HOST --port=$PORT --authenticationDatabase="admin" -u=$USER -p=$PASSWORD --db=config 
 
 }
