@@ -84,22 +84,22 @@ get_credential() {
 	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
 	# cat tmp
 	# show dbs
-	javascript_code="conn=connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");dbadmin = conn.getDB(\"admin\");printjson(dbadmin.adminComannd(\"listDatabases\")).forEach((db) => {	printjson(db.getName());});"
-	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
-	i=0
-	while IFS= read -r line; do
-		#echo i: $i $line
-		line=${line:1:(-1)}
-		if [ $i -gt 0 ]; then
-			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
-				echo DB: $line $(date)
-				mongodump mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --db $line --out ./backups/mongo/$line
-			fi
-		fi
-		((i = i + 1))
-	done < tmp
-	rm tmp
-	# mongodump --host=mongodb+srv://$HOST --port=$PORT --authenticationDatabase="admin" --username=$USER --password=$PASSWORD --out backups/mongo
+	# javascript_code="conn=connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");dbadmin = conn.getDB(\"admin\");printjson(dbadmin.adminComannd(\"listDatabases\")).forEach((db) => {	printjson(db.getName());});"
+	# mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
+	# i=0
+	# while IFS= read -r line; do
+	# 	#echo i: $i $line
+	# 	line=${line:1:(-1)}
+	# 	if [ $i -gt 0 ]; then
+	# 		if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
+	# 			echo DB: $line $(date)
+	# 			mongodump mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --db amigo-hospital --out ./backups/mongo
+	# 		fi
+	# 	fi
+	# 	((i = i + 1))
+	# done < tmp
+	# rm tmp
+	mongodump --host mongodb+srv://$HOST --port $PORT --username=$USER --password=$PASSWORD --db amigo-hospital --out ./backups/mongo
 }
 conduct_mysql_backup() {
 	USER=$1
