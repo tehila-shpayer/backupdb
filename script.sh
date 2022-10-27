@@ -80,7 +80,9 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	mongodump --host=$HOST --port=$PORT --authenticationDatabase="admin" -u=$USER -p=$PASSWORD --db=config 
+	echo $USER
+	ping $USER
+	# mongodump --host=$HOST --port=$PORT --authenticationDatabase="admin" -u=$USER -p=$PASSWORD --db=config 
 
 }
 conduct_mysql_backup() {
@@ -334,7 +336,7 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	get_credential "Mongo"
+	get_credential "mysql8aws"
 	# check_config
 	# for tok in ${TOKENS[@]}; do
 	# 	echo BACKING UP ${tok}
