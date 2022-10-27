@@ -70,7 +70,7 @@ get_credential() {
 	fi
 	user_param='user'
 	if [ ${1::5} == "mysql" ]; then
-		user_param = "user"
+		user_param="user"
 	else
 		user_param="username"
 	fi
@@ -80,10 +80,8 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	echo $HOST
-	ping $HOST
-	# mongodump --host=$HOST --port=$PORT --authenticationDatabase="admin" -u=$USER -p=$PASSWORD --db=config 
-
+	echo $USER
+	# mongodump --host=$HOST --port=$PORT --authenticationDatabase="admin" -u=$USER -p=$PASSWORD --out 
 }
 conduct_mysql_backup() {
 	USER=$1
@@ -336,7 +334,7 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	get_credential "mysql8aws"
+	get_credential "Mongo"
 	# check_config
 	# for tok in ${TOKENS[@]}; do
 	# 	echo BACKING UP ${tok}
@@ -346,7 +344,7 @@ main() {
 	# rm -rf $BACKUPS_DIR
 	# move_to_directory
 	# my_clean_old
-	echo hello world
+	# echo hello world
 }
 
 
