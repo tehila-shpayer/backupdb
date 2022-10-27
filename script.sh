@@ -58,12 +58,12 @@ check_config(){
 get_credential() {
 
 	SQLSRV=$1
-	awsAdminSecretName=hilmaAdmin$SQLSRV
+	# awsAdminSecretName=$SQLSRV
 	# SECRET_NAME=${SQLSRV}-${dbName}
 
 	TMP_FILE=tmp.json
 	# getting secret for mongoAdmin
-	aws secretsmanager get-secret-value --query 'SecretString' --output=text --secret-id ${awsAdminSecretName} >$TMP_FILE
+	aws secretsmanager get-secret-value --query 'SecretString' --output=text --secret-id ${SQLSRV} >$TMP_FILE
 	if [ $? -ne 0 ]; then
 		echo "ERROR on getting admin secrets for $SQLSRV"
 		return 1
