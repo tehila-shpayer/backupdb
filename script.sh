@@ -320,3 +320,5 @@ main() {
 	my_clean_old
 	echo hello world
 }
+
+main
