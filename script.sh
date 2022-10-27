@@ -69,7 +69,7 @@ get_credential() {
 		return 1
 	fi
 
-	if [ ${1::5} == "mysql"]: then
+	if [ ${1::5} == "mysql" ]; then
 		user_param = "user"
 	else
 		user_param="username"
