@@ -84,7 +84,7 @@ get_credential() {
 	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
 	# cat tmp
 	# show dbs
-	javascript_code="printjson(listDatabases).forEach((db)=>{printjson(db.getName());});"
+	javascript_code="printjson(\"listDatabases\").forEach((db)=>{printjson(db.getName());});"
 	mongo mongodb+srv://$HOST:$PORT/amigo-hadasa --username=$USER --password=$PASSWORD --eval $javascript_code > databases_file.json
 	cat databases_file.json
 	# mongodump --host=mongodb+srv://$HOST --port=$PORT --authenticationDatabase="admin" --username=$USER --password=$PASSWORD --out backups/mongo
