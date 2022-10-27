@@ -1,7 +1,7 @@
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 # TIMESTAMP="2022-10-25_08-00-00"
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
-TOKENS="server1 server2"
+TOKENS="myqsl8aws mysql8b Mongo"
 ROOT_BAKUPS_DIR="backups"
 
 BACKUP_DAY="Mon"
@@ -72,6 +72,7 @@ get_credential() {
 	USER=$(jq -r '.user' $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
+	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
 
 	# USER=root
@@ -82,37 +83,44 @@ get_credential() {
 conduct_backup() {
 	mkdir -p $BACKUPS_DIR/$1
 	get_credential $1
-	echo $USER $PASSWORD $HOST
-	# if [ $? -eq 0 ]; then
-	# 	echo Dumping ALL DBs $(date) >>$BACKUPS_DIR/$1/log
-	# 	# mysqldump -h$HOST -u$USER -p$PASSWORD --all-databases --triggers --routines --events >$BACKUPS_DIR/$1/alldbs.sql
-	# 	# if [ $? -ne 0 ]; then
-	# 		# echo ERROR on mysqldump for ALL DBS
-	# 		echo DUMPING TABLES SEPARATELY >>$BACKUPS_DIR/$1/log
 
-	# 		echo SHOW DATABASES >tmp.sql
-	# 		mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
-	# 		rm tmp.sql
-	# 		i=0
-	# 		while IFS= read -r line; do
-	# 			echo i: $i $line
-	# 			if [ $i -gt 0 ]; then
-	# 				if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
-	# 					echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
-	# 					sudo mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
-	# 					if [ $? -ne 0 ]; then
-	# 						echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
-	# 					fi
-	# 				fi
-	# 			fi
-	# 			((i = i + 1))
-	# 		done <tmp
-	# 		rm tmp
-	# 	# fi
-	# 	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
-	# else
-	# 	echo ERROR on $1 BACKUP!!!!!
-	# fi
+	if [ $? -eq 0 ]; then
+		echo Dumping ALL DBs $(date) >>$BACKUPS_DIR/$1/log
+		# mysqldump -h$HOST -u$USER -p$PASSWORD --all-databases --triggers --routines --events >$BACKUPS_DIR/$1/alldbs.sql
+		# if [ $? -ne 0 ]; then
+			# echo ERROR on mysqldump for ALL DBS
+			echo DUMPING TABLES SEPARATELY >>$BACKUPS_DIR/$1/log
+
+			
+			if [ ${SQLSRV::5} == "mysql"]; then
+				echo SHOW DATABASES >tmp.sql
+				mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
+			else
+				echo SHOW DBS > tmp.sql
+			fi	 
+			# for mongo: mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT/?authSource=admin
+			mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
+			rm tmp.sql
+			i=0
+			while IFS= read -r line; do
+				echo i: $i $line
+				if [ $i -gt 0 ]; then
+					if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
+						echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
+						sudo mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
+						if [ $? -ne 0 ]; then
+							echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+						fi
+					fi
+				fi
+				((i = i + 1))
+			done <tmp
+			rm tmp
+		# fi
+		echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
+	else
+		echo ERROR on $1 BACKUP!!!!!
+	fi
 }
 compare_dates() {
 	date0=${1::10}
@@ -228,9 +236,7 @@ clean_backup_directories() {
 	# find . ! -name . -prune -print | grep -c / 
 	num_files=$(ls -q ${DELETE_DIR} | wc -l)
 	echo $num_files
-	# if [ $num_files -gt 7 ]; then 
-	# 	echo "still running"
-	# fi
+
 	while [ $num_files -gt $2 ]; do
 		delete_last_backup $1
 		new_num_files=$(ls -q ${DELETE_DIR} | wc -l)
@@ -273,16 +279,15 @@ echo $DIFF
 }
 main() {
 	check_config
-	# for tok in ${TOKENS[@]}; do
-	# 	echo BACKING UP ${tok}
-	# 	conduct_backup ${tok}
-	# done
-	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	# rm -rf $BACKUPS_DIR
-	# # clean_old
-	# move_to_directory
-	# my_clean_old
-	# echo hello world
+	for tok in ${TOKENS[@]}; do
+		echo BACKING UP ${tok}
+		conduct_backup ${tok}
+	done
+	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	rm -rf $BACKUPS_DIR
+	move_to_directory
+	my_clean_old
+	echo hello world
 }
 
 
