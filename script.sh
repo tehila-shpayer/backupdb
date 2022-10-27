@@ -1,5 +1,8 @@
 #TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 TIMESTAMP="2022-27-10_08-00-00"
+	CURRENT_DAY="Wed"
+	CURRENT_MONTH_DATE="03"
+	CURRENT_YEAR_DATE="03-11"
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
 TOKENS="Mongo mysql8aws"
 ROOT_BAKUPS_DIR="backups"
