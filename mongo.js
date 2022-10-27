@@ -1,1 +1,1 @@
-printjson(db.adminCommand("listDatabases"));
+db.adminCommand("listDatabases");
