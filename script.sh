@@ -80,8 +80,6 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-
-	conduct_mongo_backup $USER $PASSWORD $HOST $PORT
 }
 conduct_mysql_backup() {
 	USER=$1
@@ -121,10 +119,10 @@ conduct_mongo_backup() {
 		if [ $i -gt 0 ]; then
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
-				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out ./backups/mongo/$line
-				# if [ $? -ne 0 ]; then
-				# 	#echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
-				# fi
+				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out $BACKUPS_DIR/$1
+				if [ $? -ne 0 ]; then
+					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+				fi
 			fi
 		fi
 		((i = i + 1))
@@ -311,16 +309,16 @@ echo $DIFF
 }
 main() {
 	get_credential "Mongo"
-	# check_config
-	# for tok in ${TOKENS[@]}; do
-	# 	echo BACKING UP ${tok}
-	# 	conduct_backup ${tok}
-	# done
-	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	# rm -rf $BACKUPS_DIR
-	# move_to_directory
-	# my_clean_old
-	# echo hello world
+	check_config
+	for tok in ${TOKENS[@]}; do
+		echo BACKING UP ${tok}
+		conduct_backup ${tok}
+	done
+	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	rm -rf $BACKUPS_DIR
+	move_to_directory
+	my_clean_old
+	echo hello world
 }
 
 
