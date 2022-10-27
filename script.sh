@@ -84,7 +84,7 @@ get_credential() {
 	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
 	# cat tmp
 	# show dbs
-	mongo mongodb+srv://$HOST:$PORT --username=$USER --password=$PASSWORD --db amigo-hadasa --eval "printjson(db.getCollectionNames())"
+	mongo mongodb+srv://$HOST:$PORT/amigo-hadasa --username=$USER --password=$PASSWORD --eval "printjson(db.getCollectionNames())"
 	# mongodump --host=mongodb+srv://$HOST --port=$PORT --authenticationDatabase="admin" --username=$USER --password=$PASSWORD --out backups/mongo
 }
 conduct_mysql_backup() {
