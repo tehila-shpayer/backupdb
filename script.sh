@@ -80,6 +80,8 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
+
+	conduct_mongo_backup $USER $PASSWORD $HOST $PORT
 }
 conduct_mysql_backup() {
 	USER=$1
@@ -119,9 +121,9 @@ conduct_mongo_backup() {
 		if [ $i -gt 0 ]; then
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
-				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out $BACKUPS_DIR/$1/$line
+				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out ./backups/mongo/$line
 				if [ $? -ne 0 ]; then
-					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+					#echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
 				fi
 			fi
 		fi
