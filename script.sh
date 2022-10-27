@@ -122,9 +122,9 @@ conduct_mongo_backup() {
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
 				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out ./backups/mongo/$line
-				if [ $? -ne 0 ]; then
-					#echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
-				fi
+				# if [ $? -ne 0 ]; then
+				# 	#echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+				# fi
 			fi
 		fi
 		((i = i + 1))
