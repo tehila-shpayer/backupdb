@@ -96,7 +96,7 @@ conduct_mysql_backup() {
 		if [ $i -gt 0 ]; then
 			if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
 				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
-				mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
+				mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$SRVNAME/$line.sql
 				if [ $? -ne 0 ]; then
 					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
 				fi
@@ -123,7 +123,7 @@ conduct_mongo_backup() {
 		if [ $i -gt 0 ]; then
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
-				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out $BACKUPS_DIR/$1
+				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out $BACKUPS_DIR/$SRVNAME
 				if [ $? -ne 0 ]; then
 					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
 				fi
