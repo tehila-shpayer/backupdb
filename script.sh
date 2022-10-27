@@ -1,12 +1,12 @@
-TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
-# TIMESTAMP="2022-10-25_08-00-00"
+#TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
+TIMESTAMP="2022-27-10_08-00-00"
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
 TOKENS="Mongo mysql8aws"
 ROOT_BAKUPS_DIR="backups"
 
 BACKUP_DAY="Thu"
 BACKUP_MONTH="27"
-BACKUP_YEAR="27-11"
+BACKUP_YEAR="27-10"
 
 check_config(){
 	if [ ! -d $ROOT_BAKUPS_DIR ]; then
