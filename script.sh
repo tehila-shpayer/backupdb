@@ -85,8 +85,23 @@ get_credential() {
 	# cat tmp
 	# show dbs
 	javascript_code="conn=connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");dbadmin = conn.getDB(\"admin\");printjson(dbadmin.adminComannd(\"listDatabases\")).forEach((db) => {	printjson(db.getName());});"
-	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js
-	cat databases_file
+	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
+	i=0
+	while IFS= read -r line; do
+		echo i: $i $line
+		line=${line:1:(-2)}
+		if [ $i -gt 0 ]; then
+			if [ $line != "admin" ] && [ $line != "local" ] && [ $line != "config" ]; then
+				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
+				#mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
+				if [ $? -ne 0 ]; then
+					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+				fi
+			fi
+		fi
+		((i = i + 1))
+	done < tmp
+	rm tmp
 	# mongodump --host=mongodb+srv://$HOST --port=$PORT --authenticationDatabase="admin" --username=$USER --password=$PASSWORD --out backups/mongo
 }
 conduct_mysql_backup() {
