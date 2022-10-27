@@ -85,6 +85,8 @@ conduct_mysql_backup() {
 	USER=$1
 	PASSWORD=$2
 	HOST=$3
+	SRVNAME=$4
+
 	echo SHOW DATABASES >tmp.sql
 	mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
 	rm tmp.sql
@@ -105,11 +107,13 @@ conduct_mysql_backup() {
 	rm tmp
 	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
 }
+
 conduct_mongo_backup() {
 	USER=$1
 	PASSWORD=$2
 	HOST=$3
 	PORT=$4
+	SRVNAME=$5
 	
 	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
 	i=0
@@ -142,9 +146,9 @@ conduct_backup() {
 
 		
 		if [ ${SQLSRV::5} == "mysql" ]; then
-			conduct_mysql_backup $USER $PASSWORD $HOST
+			conduct_mysql_backup $USER $PASSWORD $HOST $1
 		elif [ ${SQLSRV::5} == "Mongo" ]; then
-			conduct_mongo_backup $USER $PASSWORD $HOST $PORT
+			conduct_mongo_backup $USER $PASSWORD $HOST $PORT $1
 		fi	 
 
 		echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
