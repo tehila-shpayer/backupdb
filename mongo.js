@@ -1,3 +1,5 @@
-printjson(adminCommand("listDatabases")).forEach((db) => {
+conn = new Mongo();
+dbadmin = conn.getDB("admin");
+printjson(dbadmin.adminCommand("listDatabases")).forEach((db) => {
   printjson(db.getName());
 });
