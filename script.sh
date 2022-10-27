@@ -80,7 +80,10 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	echo $USER
+	mongo mongodb+srv://$USER:$PORT mongo.js
+	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
+	# cat tmp
+	# show dbs
 	# mongodump --host=$HOST --port=$PORT --authenticationDatabase="admin" -u=$USER -p=$PASSWORD --out 
 }
 conduct_mysql_backup() {
