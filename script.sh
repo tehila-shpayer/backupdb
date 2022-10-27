@@ -1,7 +1,7 @@
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 # TIMESTAMP="2022-10-25_08-00-00"
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
-TOKENS="Mongo"
+TOKENS="Mongo mysql8aws"
 ROOT_BAKUPS_DIR="backups"
 
 BACKUP_DAY="Mon"
@@ -308,7 +308,6 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	get_credential "Mongo"
 	check_config
 	for tok in ${TOKENS[@]}; do
 		echo BACKING UP ${tok}
