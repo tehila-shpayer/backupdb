@@ -80,26 +80,6 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	mongo mongodb+srv://$HOST:$PORT --username $USER --password $PASSWORD mongo.js
-	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
-	# cat tmp
-	# show dbs
-	# javascript_code="conn=connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");dbadmin = conn.getDB(\"admin\");printjson(dbadmin.adminComannd(\"listDatabases\")).forEach((db) => {	printjson(db.getName());});"
-	# mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
-	# i=0
-	# while IFS= read -r line; do
-	# 	#echo i: $i $line
-	# 	line=${line:1:(-1)}
-	# 	if [ $i -gt 0 ]; then
-	# 		if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
-	# 			echo DB: $line $(date)
-	# 			mongodump mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --db amigo-hospital --out ./backups/mongo
-	# 		fi
-	# 	fi
-	# 	((i = i + 1))
-	# done < tmp
-	# rm tmp
-	mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db hilma101 --out ./backups/mongo
 }
 conduct_mysql_backup() {
 	USER=$1
@@ -131,24 +111,22 @@ conduct_mongo_backup() {
 	HOST=$3
 	PORT=$4
 	
-	echo SHOW DBS > tmp.sql
-	mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
-
-	rm tmp.sql
+	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
 	i=0
 	while IFS= read -r line; do
 		echo i: $i $line
+		line=${line:1:(-1)}
 		if [ $i -gt 0 ]; then
-			if [ $line != "local" ] && [ $line != admin ] && [ $line != config ]; then
-				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
-				mongosh mongodump -h $HOST:$PORT -d $line -u $USER -p $PASSWORD -o $BACKUPS_DIR/$1/$line.sql
+			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
+				echo DB: $line $(date)
+				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out $BACKUPS_DIR/$1/$line
 				if [ $? -ne 0 ]; then
-					echo ERROR on mongodump for $line >>$BACKUPS_DIR/$1/log
+					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
 				fi
 			fi
 		fi
 		((i = i + 1))
-	done <tmp
+	done < tmp
 	rm tmp
 
 	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log	
@@ -159,36 +137,16 @@ conduct_backup() {
 
 	if [ $? -eq 0 ]; then
 		echo Dumping ALL DBs $(date) >>$BACKUPS_DIR/$1/log
-		# mysqldump -h$HOST -u$USER -p$PASSWORD --all-databases --triggers --routines --events >$BACKUPS_DIR/$1/alldbs.sql
-		# if [ $? -ne 0 ]; then
-			# echo ERROR on mysqldump for ALL DBS
-			echo DUMPING TABLES SEPARATELY >>$BACKUPS_DIR/$1/log
 
-			
-			if [ ${SQLSRV::5} == "mysql" ]; then
-				conduct_mysql_backup $USER $PASSWORD $HOST
-			elif [ ${SQLSRV::5} == "Mongo" ]; then
-				conduct_mongo_backup $USER $PASSWORD $HOST $PORT
-			fi	 
-			# for mongo: mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT/?authSource=admin
-			mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
-			rm tmp.sql
-			i=0
-			while IFS= read -r line; do
-				echo i: $i $line
-				if [ $i -gt 0 ]; then
-					if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
-						echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
-						sudo mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
-						if [ $? -ne 0 ]; then
-							echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
-						fi
-					fi
-				fi
-				((i = i + 1))
-			done <tmp
-			rm tmp
-		# fi
+		echo DUMPING TABLES SEPARATELY >>$BACKUPS_DIR/$1/log
+
+		
+		if [ ${SQLSRV::5} == "mysql" ]; then
+			conduct_mysql_backup $USER $PASSWORD $HOST
+		elif [ ${SQLSRV::5} == "Mongo" ]; then
+			conduct_mongo_backup $USER $PASSWORD $HOST $PORT
+		fi	 
+
 		echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
 	else
 		echo ERROR on $1 BACKUP!!!!!
@@ -350,17 +308,16 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	get_credential "Mongo"
-	# check_config
-	# for tok in ${TOKENS[@]}; do
-	# 	echo BACKING UP ${tok}
-	# 	conduct_backup ${tok}
-	# done
-	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	# rm -rf $BACKUPS_DIR
-	# move_to_directory
-	# my_clean_old
-	# echo hello world
+	check_config
+	for tok in ${TOKENS[@]}; do
+		echo BACKING UP ${tok}
+		conduct_backup ${tok}
+	done
+	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	rm -rf $BACKUPS_DIR
+	move_to_directory
+	my_clean_old
+	echo hello world
 }
 
 
