@@ -84,11 +84,7 @@ get_credential() {
 	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
 	# cat tmp
 	# show dbs
-	javascript_code="conn = connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");
-		dbadmin = conn.getDB("admin");
-		printjson(dbadmin.adminCommand(\"listDatabases\")).forEach((db) => {
-  		printjson(db.getName());	
-	});"
+	javascript_code="conn=connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");dbadmin = conn.getDB("admin");printjson(dbadmin.adminCommand(\"listDatabases\")).forEach((db) => {	printjson(db.getName());});"
 	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --eval $javascript_code > databases_file
 	cat databases_file
 	# mongodump --host=mongodb+srv://$HOST --port=$PORT --authenticationDatabase="admin" --username=$USER --password=$PASSWORD --out backups/mongo
