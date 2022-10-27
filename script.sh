@@ -207,9 +207,9 @@ get_prev_week() {
 }
 move_to_directory() {
 	
-	# CURRENT_DAY=$(date +"%a")
-	# CURRENT_MONTH_DATE=$(date +"%d")
-	# CURRENT_YEAR_DATE=$(date +"%d-%m")	
+	CURRENT_DAY=$(date +"%a")
+	CURRENT_MONTH_DATE=$(date +"%d")
+	CURRENT_YEAR_DATE=$(date +"%d-%m")	
 
 	if [ $CURRENT_YEAR_DATE == $BACKUP_YEAR ]; then
 		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/year_backups\/$TIMESTAMP.tgz 
