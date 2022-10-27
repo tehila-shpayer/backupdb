@@ -1,1 +1,1 @@
-console.log("hello you");
+db.adminCommand("listDatabases");
