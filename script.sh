@@ -75,20 +75,68 @@ get_credential() {
 		user_param="username"
 	fi
 
-	echo $user_param
-
 	USER=$(jq -r .$user_param $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
+    atlas clusters connectionStrings
+	#ongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
 
-	mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT/?authSource=admin
+}
+conduct_mysql_backup() {
+	USER=$1
+	PASSWORD=$2
+	HOST=$3
+	echo SHOW DATABASES >tmp.sql
+	mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
 
-	# USER=root
-	# PASSWORD=hilma
-	# HOST=127.0.0.1
+	mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
+	rm tmp.sql
+	i=0
+	while IFS= read -r line; do
+		echo i: $i $line
+		if [ $i -gt 0 ]; then
+			if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
+				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
+				sudo mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
+				if [ $? -ne 0 ]; then
+					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+				fi
+			fi
+		fi
+		((i = i + 1))
+	done <tmp
+	rm tmp
+	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
+}
+conduct_mongo_backup() {
+	USER=$1
+	PASSWORD=$2
+	HOST=$3
+	PORT=$4
+	
+	echo SHOW DBS > tmp.sql
+	mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
 
+	rm tmp.sql
+	i=0
+	while IFS= read -r line; do
+		echo i: $i $line
+		if [ $i -gt 0 ]; then
+			if [ $line != "local" ] && [ $line != admin ] && [ $line != config ]; then
+				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
+				mongosh mongodump -h $HOST:$PORT -d $line -u $USER -p $PASSWORD -o $BACKUPS_DIR/$1/$line.sql
+				if [ $? -ne 0 ]; then
+					echo ERROR on mongodump for $line >>$BACKUPS_DIR/$1/log
+				fi
+			fi
+		fi
+		((i = i + 1))
+	done <tmp
+	rm tmp
+
+	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log	
 }
 conduct_backup() {
 	mkdir -p $BACKUPS_DIR/$1
@@ -103,11 +151,9 @@ conduct_backup() {
 
 			
 			if [ ${SQLSRV::5} == "mysql" ]; then
-				echo SHOW DATABASES >tmp.sql
-				mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
+				conduct_mysql_backup $USER $PASSWORD $HOST
 			elif [ ${SQLSRV::5} == "Mongo" ]; then
-				echo SHOW DBS > tmp.sql
-				mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
+				conduct_mongo_backup $USER $PASSWORD $HOST $PORT
 			fi	 
 			# for mongo: mongosh mongodb://$USER:$PASSWORD@$HOST:$PORT/?authSource=admin
 			mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
