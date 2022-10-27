@@ -1,7 +1,7 @@
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 # TIMESTAMP="2022-10-25_08-00-00"
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
-TOKENS="myqsl8aws mysql8b Mongo"
+TOKENS="Mongo"
 ROOT_BAKUPS_DIR="backups"
 
 BACKUP_DAY="Mon"
@@ -73,6 +73,9 @@ get_credential() {
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
+	echo $PORT
+	echo $USER
+	echo $HOST
 	rm $TMP_FILE
 
 	# USER=root
@@ -278,6 +281,7 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
+	get_credential "Mongo"
 	# check_config
 	# for tok in ${TOKENS[@]}; do
 	# 	echo BACKING UP ${tok}
