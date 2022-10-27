@@ -77,7 +77,7 @@ get_credential() {
 
 	echo $user_param
 
-	USER=$(jq -r $user_param $TMP_FILE)
+	USER=$(jq -r .$user_param $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
