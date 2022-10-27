@@ -93,7 +93,7 @@ get_credential() {
 		if [ $i -gt 0 ]; then
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
-				#mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
+				mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --out ./backups/mongo
 			fi
 		fi
 		((i = i + 1))
