@@ -80,7 +80,7 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	mongosh mongodb
+	mongosh mongodump -h $HOST:$PORT -d $line -u $USER -p $PASSWORD -o $ROOT_BAKUPS_DIR\/backup.bson
 
 }
 conduct_mysql_backup() {
@@ -98,7 +98,7 @@ conduct_mysql_backup() {
 		if [ $i -gt 0 ]; then
 			if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
 				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
-				sudo mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
+				mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
 				if [ $? -ne 0 ]; then
 					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
 				fi
