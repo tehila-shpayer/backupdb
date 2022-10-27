@@ -85,7 +85,7 @@ get_credential() {
 	# cat tmp
 	# show dbs
 	javascript_code="conn=connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");dbadmin = conn.getDB(\"admin\");printjson(dbadmin.adminComannd(\"listDatabases\")).forEach((db) => {	printjson(db.getName());});"
-	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD --eval mongo.js
+	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js
 	cat databases_file
 	# mongodump --host=mongodb+srv://$HOST --port=$PORT --authenticationDatabase="admin" --username=$USER --password=$PASSWORD --out backups/mongo
 }
