@@ -80,7 +80,7 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	mongosh mongodump -h $HOST:$PORT -d $line -u $USER -p $PASSWORD -o $ROOT_BAKUPS_DIR\/backup.bson
+	mongosh mongodump -h $HOST:$PORT -d local -u $USER -p $PASSWORD -o $ROOT_BAKUPS_DIR\/backup.bson
 
 }
 conduct_mysql_backup() {
