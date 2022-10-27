@@ -1,3 +1,3 @@
-printjson("listDatabases").forEach((db) => {
+printjson(adminCommand("listDatabases")).forEach((db) => {
   printjson(db.getName());
 });
