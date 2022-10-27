@@ -4,9 +4,9 @@ DAYS="Mon Tue Wed Thu Fri Sat Sun"
 TOKENS="Mongo mysql8aws"
 ROOT_BAKUPS_DIR="backups"
 
-BACKUP_DAY="Mon"
-BACKUP_MONTH="20"
-BACKUP_YEAR="25-11"
+BACKUP_DAY="Thu"
+BACKUP_MONTH="27"
+BACKUP_YEAR="27-11"
 
 check_config(){
 	if [ ! -d $ROOT_BAKUPS_DIR ]; then
@@ -95,17 +95,17 @@ conduct_mysql_backup() {
 		echo i: $i $line
 		if [ $i -gt 0 ]; then
 			if [ $line != mysql ] && [ $line != sys ] && [ $line != performance_schema ] && [ $line != information_schema ]; then
-				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
+				echo DB: $line $(date) >>$BACKUPS_DIR/$SRVNAME/log
 				mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$SRVNAME/$line.sql
 				if [ $? -ne 0 ]; then
-					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$SRVNAME/log
 				fi
 			fi
 		fi
 		((i = i + 1))
 	done <tmp
 	rm tmp
-	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log
+	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$SRVNAME/log
 }
 
 conduct_mongo_backup() {
@@ -125,7 +125,7 @@ conduct_mongo_backup() {
 				echo DB: $line $(date)
 				mongodump mongodb+srv://$HOST --username=$USER --password=$PASSWORD --db $line --out $BACKUPS_DIR/$SRVNAME
 				if [ $? -ne 0 ]; then
-					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
+					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$SRVNAME/log
 				fi
 			fi
 		fi
@@ -133,7 +133,7 @@ conduct_mongo_backup() {
 	done < tmp
 	rm tmp
 
-	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$1/log	
+	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$SRVNAME/log	
 }
 conduct_backup() {
 	mkdir -p $BACKUPS_DIR/$1
