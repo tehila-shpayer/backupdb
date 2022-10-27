@@ -68,12 +68,14 @@ get_credential() {
 		echo "ERROR on getting admin secrets for $SQLSRV"
 		return 1
 	fi
-
+	user_param = ''
 	if [ ${1::5} == "mysql" ]; then
 		user_param = "user"
 	else
 		user_param="username"
 	fi
+
+	echo $user_param
 
 	USER=$(jq -r $user_param $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
