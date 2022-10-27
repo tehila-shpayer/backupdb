@@ -99,7 +99,7 @@ get_credential() {
 	# 	((i = i + 1))
 	# done < tmp
 	# rm tmp
-	mongodump mongodb+srv://$HOST:$HOST --authenticationDatabase admin --username=$USER --password=$PASSWORD --db amigo-hospital --out ./backups/mongo
+	mongodump mongodb+srv://$HOST --port:$PORT --authenticationDatabase admin --username=$USER --password=$PASSWORD --db amigo-hospital --out ./backups/mongo
 }
 conduct_mysql_backup() {
 	USER=$1
