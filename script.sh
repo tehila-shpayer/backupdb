@@ -89,7 +89,7 @@ get_credential() {
 	i=0
 	while IFS= read -r line; do
 		#echo i: $i $line
-		line=${line:1:(-2)}
+		line=${line:1:(-1)}
 		if [ $i -gt 0 ]; then
 			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
