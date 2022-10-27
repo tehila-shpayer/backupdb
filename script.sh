@@ -69,13 +69,14 @@ get_credential() {
 		return 1
 	fi
 
-	USER=$(jq -r '.user' $TMP_FILE)
+	USER=$(jq -r '.username' $TMP_FILE)
 	PASSWORD=$(jq -r '.password' $TMP_FILE)
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	echo $PORT
 	echo $USER
 	echo $HOST
+	echo ${PASSWORD::2}
 	rm $TMP_FILE
 
 	# USER=root
