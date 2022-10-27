@@ -92,11 +92,8 @@ get_credential() {
 		line=${line:1:(-2)}
 		if [ $i -gt 0 ]; then
 			if [ $line != "admin" ] && [ $line != "local" ] && [ $line != "config" ]; then
-				echo DB: $line $(date) >>$BACKUPS_DIR/$1/log
+				echo DB: $line $(date)
 				#mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
-				if [ $? -ne 0 ]; then
-					echo ERROR on mysqldump for $line >>$BACKUPS_DIR/$1/log
-				fi
 			fi
 		fi
 		((i = i + 1))
@@ -109,8 +106,6 @@ conduct_mysql_backup() {
 	PASSWORD=$2
 	HOST=$3
 	echo SHOW DATABASES >tmp.sql
-	mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
-
 	mysql -h$HOST -u$USER -p$PASSWORD <tmp.sql >tmp
 	rm tmp.sql
 	i=0
