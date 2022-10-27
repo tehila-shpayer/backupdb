@@ -69,9 +69,9 @@ get_credential() {
 		return 1
 	fi
 	user_param='user'
-	if [ ${1::5} == "mysql" ]; then
+	if [ ${1::5} == "hilma" ]; then
 		user_param="user"
-	else
+	elif [ ${1::5} == "mongo" ]; then
 		user_param="username"
 	fi
 
