@@ -80,8 +80,7 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-    atlas clusters connectionStrings
-	#ongosh mongodb://$USER:$PASSWORD@$HOST:$PORT
+	mongosh mongodb
 
 }
 conduct_mysql_backup() {
