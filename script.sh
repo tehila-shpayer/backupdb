@@ -88,10 +88,10 @@ get_credential() {
 	mongo mongodb+srv://$HOST:$PORT/admin --username=$USER --password=$PASSWORD mongo.js > tmp
 	i=0
 	while IFS= read -r line; do
-		echo i: $i $line
+		#echo i: $i $line
 		line=${line:1:(-2)}
 		if [ $i -gt 0 ]; then
-			if [ $line != "admin" ] && [ $line != "local" ] && [ $line != "config" ]; then
+			if [ $line != admin ] && [ $line != local ] && [ $line != config ]; then
 				echo DB: $line $(date)
 				#mysqldump -h$HOST -u$USER -p$PASSWORD --set-gtid-purged=OFF $line >$BACKUPS_DIR/$1/$line.sql
 			fi
