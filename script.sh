@@ -310,16 +310,17 @@ echo $DIFF
 	cd $CURR_DIR
 }
 main() {
-	check_config
-	for tok in ${TOKENS[@]}; do
-		echo BACKING UP ${tok}
-		conduct_backup ${tok}
-	done
-	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	rm -rf $BACKUPS_DIR
-	move_to_directory
-	my_clean_old
-	echo hello world
+	get_credential "Mongo"
+	# check_config
+	# for tok in ${TOKENS[@]}; do
+	# 	echo BACKING UP ${tok}
+	# 	conduct_backup ${tok}
+	# done
+	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	# rm -rf $BACKUPS_DIR
+	# move_to_directory
+	# my_clean_old
+	# echo hello world
 }
 
 
