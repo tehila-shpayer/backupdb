@@ -84,7 +84,7 @@ get_credential() {
 	# mongo mongod   b+srv://$HOST --username $USER --password $PASSWORD <tmp.bson> > tmp
 	# cat tmp
 	# show dbs
-	javascript_code="conn = connect(mongodb+srv://$HOST:$PORT/admin, $USER, $PASSWORD);
+	javascript_code="conn = connect(\"mongodb+srv://$HOST:$PORT/admin\", "$USER", "$PASSWORD");
 		dbadmin = conn.getDB("admin");
 		printjson(dbadmin.adminCommand(\"listDatabases\")).forEach((db) => {
   		printjson(db.getName());	
