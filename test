@@ -318,15 +318,12 @@ main() {
 	date="2020-01-01_08-00-00"
 	compare_dates "2021-01-01_08-00-00" "2020-02-01_08-00-00"
 	echo $RESULT
-	while [ $i  ]; do
-			echo Check $day
-			if [ "${day}" == "${!DAY}" ]; then
-				FLAG="true"
-			fi
-		done
-
-	TIMESTAMP=$(date "+(%Y + 1)-%m-%d_%H-%M-%S")
-	echo TIMESTAMP
+	# while [ $i  ]; do
+	# 		echo Check $day
+	# 		if [ "${day}" == "${!DAY}" ]; then
+	# 			FLAG="true"
+	# 		fi
+	# 	done
 	# move_to_directory
 	# my_clean_old
 	# echo hello world
