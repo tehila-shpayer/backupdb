@@ -1,8 +1,9 @@
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
-TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
-# TOKENS="hilmaAdminmysql8aws"
+# TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
+TOKENS="hilmaAdminmysql8aws"
 ROOT_BAKUPS_DIR="backups"
+BUCKET="s3://backup-bucket-test-hilma"
 BACKUP_DAY="Sun"
 BACKUP_MONTH="01"
 BACKUP_YEAR="01-01"
@@ -65,10 +66,23 @@ BACKUP_YEAR="01-01"
 # 	fi
 # }
 
+make_dirs() {
+	dir_name=$1
+	mkdir -p $ROOT_BAKUPS_DIR/${dir_name}_backups
+	log_path=$ROOT_BAKUPS_DIR/${dir_name}_backups/log
+	touch $log_path
+	echo "CREATING " ${dir_name} "BACKUP DIRECTORY" > $log_path
+}
 check_config(){
-	if [ ! -d $ROOT_BAKUPS_DIR ]; then
+	aws s3 ls $BUCKET/$ROOT_BAKUPS_DIR
+	if [ $? -eq 0 ]; then
 		echo CREATE $ROOT_BAKUPS_DIR DIRECTORYS
 		mkdir -p $ROOT_BAKUPS_DIR
+		make_dirs "day"
+		make_dirs "week"
+		make_dirs "month"
+		make_dirs "year"
+		aws s3 sync --delete $ROOT_BAKUPS_DIR $BUCKET
 		if [ ${?} -ne 0 ]; then
 			echo "Error creating $ROOT_BAKUPS_DIR!"
 			echo "Script will now exit..."
@@ -86,10 +100,6 @@ check_config(){
 	fi	
 
 	mkdir -p "$BACKUPS_DIR/$TIMESTAMP"
-	mkdir -p "$ROOT_BAKUPS_DIR/day_backups"
-	mkdir -p "$ROOT_BAKUPS_DIR/month_backups"
-	mkdir -p "$ROOT_BAKUPS_DIR/week_backups"
-	mkdir -p "$ROOT_BAKUPS_DIR/year_backups"
 	BACKUPS_DIR=$BACKUPS_DIR/$TIMESTAMP
 }
 
@@ -302,16 +312,21 @@ simulate() {
 }
 
 main() {
-	check_config
-	for tok in ${TOKENS[@]}; do
-		echo BACKING UP ${tok}
-		conduct_backup ${tok}
-	done
-	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	rm -rf $BACKUPS_DIR
-	move_to_directory
-	my_clean_old
-	echo 'hello bucket'
+	aws s3 ls $BUCKET > res.txt
+	# if [ $res == "PRE" $ROOT_BAKUPS_DIR ]; then
+	# 	echo 'exist'
+	# fi
+	# check_config
+	# for tok in ${TOKENS[@]}; do
+	# 	echo BACKING UP ${tok}
+	# 	conduct_backup ${tok}
+	# done
+	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	# rm -rf $BACKUPS_DIR
+	# move_to_directory
+	# my_clean_old
+	# aws s3 ls $ROOT_BAKUPS_DIR > tmp
+	# aws s3 cp tmp $ROOT_BAKUPS_DIR
 }
 
 main
