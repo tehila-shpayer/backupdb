@@ -6,6 +6,65 @@ ROOT_BAKUPS_DIR="backups"
 BACKUP_DAY="Sun"
 BACKUP_MONTH="01"
 BACKUP_YEAR="01-01"
+
+# clean_old() {
+# 	same_day=0
+# 	num_days=0
+# 	num_weeks=0
+# 	num_months=0
+# 	num_years=0
+# 	CURR_DIR=`pwd`
+# 	cd $ROOT_BAKUPS_DIR
+# 	for file in *; do
+# 	echo $file
+# 	filedate=${file//.tgz/}
+# 	echo $filedate
+# timestamp_diff $TIMESTAMP $filedate
+# echo $DIFF
+# 	if [ $DIFF -gt 365 ]; then ((num_years = num_years + 1)); fi
+# 	if [ $DIFF -gt 30 ] && [ $DIFF -le 365 ]; then ((num_months = num_months + 1)); fi
+# 	if [ $DIFF -gt 7 ] && [ $DIFF -le 30 ]; then ((num_weeks = num_weeks + 1)); fi
+# 	if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
+# 	if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
+# 	done
+# 	if [ $same_day -gt 1 ]; then clean_same_day; fi
+# 	if [ $num_days -gt 7 ]; then clean_day; fi
+# 	if [ $num_weeks -gt 4 ]; then clean_week; fi
+# 	if [ $num_months -gt 12 ]; then clean_month; fi
+	
+# 	echo $num_years $num_months $num_weeks $num_days $same_day
+# 	cd $CURR_DIR
+# }
+
+# timestamp_diff() {
+# 	date0=${1::10}
+# 	time0=${1:(-8)}
+# 	time0=$(echo ${time0} | tr "-" ":" | tr "_" " ")
+
+# 	date1=${2::10}
+# 	time1=${2:(-8)}
+# 	time1=$(echo ${time1} | tr "-" ":" | tr "_" " ")
+
+# 	x=$(date --date="${date0} ${time0}" +%s)
+# 	y=$(date --date="${date1} ${time1}" +%s)
+
+# 	if [ "${x}" -lt "${y}" ]; then
+# 		tmp=${x}
+# 		x=${y}
+# 		y=${tmp}
+# 	fi
+
+# 	DIFF=$(((${x} - ${y}) / 86400))
+# }
+# get_prev_week() {
+# 	SUN=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Sunday")
+# 	MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday")
+# 	timestamp_diff ${MON} ${SUN}
+# 	if [ ${DIFF} -eq 1 ]; then
+# 		MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday -1 week")
+# 	fi
+# }
+
 check_config(){
 	if [ ! -d $ROOT_BAKUPS_DIR ]; then
 		echo CREATE $ROOT_BAKUPS_DIR DIRECTORYS
@@ -25,25 +84,6 @@ check_config(){
 		echo "Script will now exit..."
 		exit 4
 	fi	
-
-	# FLAG="false"
-	# if [ "${!DAY}" == "All" ]; then
-	# 	FLAG="true"
-	# else
-	# 	for day in "${DAYS[@]}"; do
-	# 		echo Check $day
-	# 		if [ "${day}" == "${!DAY}" ]; then
-	# 			FLAG="true"
-	# 		fi
-	# 	done
-	# fi
-
-	# if [ "${FLAG}" == "false" ]; then
-	# 	echo "The value of the \$${DAY} variable is INVALID!"
-	# 	echo "Available options: \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\" "
-	# 	echo "Script will now exit..."
-	# 	exit 5
-	# fi
 
 	mkdir -p "$BACKUPS_DIR/$TIMESTAMP"
 	mkdir -p "$ROOT_BAKUPS_DIR/day_backups"
@@ -79,6 +119,7 @@ get_credential() {
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
 }
+
 conduct_mysql_backup() {
 	USER=$1
 	PASSWORD=$2
@@ -133,6 +174,7 @@ conduct_mongo_backup() {
 
 	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$SRVNAME/log	
 }
+
 conduct_backup() {
 	mkdir -p $BACKUPS_DIR/$1
 	get_credential $1
@@ -154,6 +196,7 @@ conduct_backup() {
 		echo ERROR on $1 BACKUP!!!!!
 	fi
 }
+
 compare_dates() {
 	date0=${1::10}
 	time0=${1:(-8)}
@@ -165,8 +208,6 @@ compare_dates() {
 
 	x=$(date --date="${date0} ${time0}" +%s)
 	y=$(date --date="${date1} ${time1}" +%s)
-	echo "x: $x y: $y"
-
 
 	if [ ${x} -lt ${y} ]; then
 		RESULT=1
@@ -176,39 +217,12 @@ compare_dates() {
 		RESULT=0
 	fi
 }
-timestamp_diff() {
-	date0=${1::10}
-	time0=${1:(-8)}
-	time0=$(echo ${time0} | tr "-" ":" | tr "_" " ")
 
-	date1=${2::10}
-	time1=${2:(-8)}
-	time1=$(echo ${time1} | tr "-" ":" | tr "_" " ")
-
-	x=$(date --date="${date0} ${time0}" +%s)
-	y=$(date --date="${date1} ${time1}" +%s)
-
-	if [ "${x}" -lt "${y}" ]; then
-		tmp=${x}
-		x=${y}
-		y=${tmp}
-	fi
-
-	DIFF=$(((${x} - ${y}) / 86400))
-}
-get_prev_week() {
-	SUN=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Sunday")
-	MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday")
-	timestamp_diff ${MON} ${SUN}
-	if [ ${DIFF} -eq 1 ]; then
-		MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday -1 week")
-	fi
-}
 move_to_directory() {
 	
 	CURRENT_DAY=$(date +"%a")
 	CURRENT_MONTH_DATE=$(date +"%d")
-	CURRENT_YEAR_DATE=$(date +"%d-%m")	
+	CURRENT_YEAR_DATE=$(date +"%m-%d")	
 
 	if [ $CURRENT_YEAR_DATE == $BACKUP_YEAR ]; then
 		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/year_backups\/$TIMESTAMP.tgz 
@@ -219,36 +233,22 @@ move_to_directory() {
 	else
 		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/day_backups\/$TIMESTAMP.tgz
 	fi
-	# FLAG="false"
-	# if [ "${BACKUP_DAY}" == "All" ]; then
-	# 	FLAG="true"
-	# else
-	# 	for day in "${DAYS[@]}"; do
-	# 		echo Check $day
-	# 		if [ "${day}" == "${!DAY}" ]; then
-	# 			FLAG="true"
-	# 		fi
-	# 	done
-	# fi
-
-	# if [ "${FLAG}" == "false" ]; then
-	# 	echo "The value of the \$${DAY} variable is INVALID!"
-	# 	echo "Available options: \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\" "
-	# 	echo "Script will now exit..."
-	# 	exit 5
-	# fi
 }
+
 my_clean_old() {
 	clean_backup_directories "day_backups" 7
 	clean_backup_directories "week_backups" 4
 	clean_backup_directories "month_backups" 12
 	clean_backup_directories "year_backups" 5
 }
+
 delete_last_backup() {
 	date=${TIMESTAMP::10}
 	oldest_file=$TIMESTAMP	
 	for filename in $ROOT_BAKUPS_DIR\/$1\/*; do
 		file=${filename:(-23):19}
+		# file=${filename:(-19):19}
+		# echo "filename: $filename file:$file"
 		compare_dates $file $oldest_file
 		if [ $RESULT -eq 1 ]; then
 			oldest_file=$file
@@ -256,80 +256,62 @@ delete_last_backup() {
 	done
 	for filename in $ROOT_BAKUPS_DIR\/$1\/*; do
 		file=${filename:(-23):19}
+		# file=${filename:(-19):19}
 		if [ "${file}" == "${oldest_file}" ]; then
 			rm -rf $filename
 		fi	
 	done
 }
+
 clean_backup_directories() {
 	DELETE_DIR=$ROOT_BAKUPS_DIR\/$1
-	# find . ! -name . -prune -print | grep -c / 
 	num_files=$(ls -q ${DELETE_DIR} | wc -l)
-	echo $num_files
 
 	while [ $num_files -gt $2 ]; do
 		delete_last_backup $1
 		new_num_files=$(ls -q ${DELETE_DIR} | wc -l)
-		echo $new_num_files	
 		if [ $num_files -eq $new_num_files ]; then 
 			echo "ERROR on deleting old backups for $1 directory"
 			exit 1
 		fi
 		num_files=$new_num_files
 	done
-	# while [ $num_files -gt 7 ]; do
 }
-clean_old() {
-	same_day=0
-	num_days=0
-	num_weeks=0
-	num_months=0
-	num_years=0
-	CURR_DIR=`pwd`
-	cd $ROOT_BAKUPS_DIR
-	for file in *; do
-	echo $file
-	filedate=${file//.tgz/}
-	echo $filedate
-timestamp_diff $TIMESTAMP $filedate
-echo $DIFF
-	if [ $DIFF -gt 365 ]; then ((num_years = num_years + 1)); fi
-	if [ $DIFF -gt 30 ] && [ $DIFF -le 365 ]; then ((num_months = num_months + 1)); fi
-	if [ $DIFF -gt 7 ] && [ $DIFF -le 30 ]; then ((num_weeks = num_weeks + 1)); fi
-	if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
-	if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
-	done
-	if [ $same_day -gt 1 ]; then clean_same_day; fi
-	if [ $num_days -gt 7 ]; then clean_day; fi
-	if [ $num_weeks -gt 4 ]; then clean_week; fi
-	if [ $num_months -gt 12 ]; then clean_month; fi
-	
-	echo $num_years $num_months $num_weeks $num_days $same_day
-	cd $CURR_DIR
-}
-main() {
-	# check_config
-	# for tok in ${TOKENS[@]}; do
-	# 	echo BACKING UP ${tok}
-	# 	conduct_backup ${tok}
-	# done
-	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	# rm -rf $BACKUPS_DIR
-	date="2020-01-01_08-00-00"
-	compare_dates "2021-01-01_08-00-00" "2020-02-01_08-00-00"
-	echo $RESULT
-	while [ $i  ]; do
-			echo Check $day
-			if [ "${day}" == "${!DAY}" ]; then
-				FLAG="true"
-			fi
-		done
 
-	TIMESTAMP=$(date "+(%Y + 1)-%m-%d_%H-%M-%S")
-	echo TIMESTAMP
-	# move_to_directory
-	# my_clean_old
-	# echo hello world
+simulate() {
+	i=0
+	while [ $i -lt 800  ]; do
+		y=$(date --date="2020-01-01 08:00:00" +%s)
+		((y = $y + 86400*$i))
+		TIMESTAMP=$(date -u -d @$y "+%Y-%m-%d_%H-%M-%S")
+		CURRENT_DAY=$(date -u -d @$y "+%a")
+		CURRENT_MONTH_DATE=$(date -u -d @$y "+%d")
+		CURRENT_YEAR_DATE=$(date -u -d @$y "+%m-%d")	
+		cat $TIMESTAMP > $TIMESTAMP
+		if [ $CURRENT_YEAR_DATE == $BACKUP_YEAR ]; then
+			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/year_backups\/$TIMESTAMP 
+		elif [ $CURRENT_MONTH_DATE == $BACKUP_MONTH ]; then
+			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/month_backups\/$TIMESTAMP
+		elif [ $CURRENT_DAY == $BACKUP_DAY ]; then
+			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/week_backups\/$TIMESTAMP
+		else
+			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/day_backups\/$TIMESTAMP
+		fi
+		my_clean_old
+		((i=$i+1))
+	done
+}
+
+main() {
+	check_config
+	for tok in ${TOKENS[@]}; do
+		echo BACKING UP ${tok}
+		conduct_backup ${tok}
+	done
+	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	rm -rf $BACKUPS_DIR
+	move_to_directory
+	my_clean_old
 }
 
 main
