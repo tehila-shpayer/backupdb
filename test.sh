@@ -3,9 +3,68 @@ DAYS="Mon Tue Wed Thu Fri Sat Sun"
 TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
 # TOKENS="hilmaAdminmysql8aws"
 ROOT_BAKUPS_DIR="backups"
-BACKUP_DAY="Thu"
-BACKUP_MONTH="02"
-BACKUP_YEAR="01-02"
+BACKUP_DAY="Sun"
+BACKUP_MONTH="01"
+BACKUP_YEAR="01-01"
+
+# clean_old() {
+# 	same_day=0
+# 	num_days=0
+# 	num_weeks=0
+# 	num_months=0
+# 	num_years=0
+# 	CURR_DIR=`pwd`
+# 	cd $ROOT_BAKUPS_DIR
+# 	for file in *; do
+# 	echo $file
+# 	filedate=${file//.tgz/}
+# 	echo $filedate
+# timestamp_diff $TIMESTAMP $filedate
+# echo $DIFF
+# 	if [ $DIFF -gt 365 ]; then ((num_years = num_years + 1)); fi
+# 	if [ $DIFF -gt 30 ] && [ $DIFF -le 365 ]; then ((num_months = num_months + 1)); fi
+# 	if [ $DIFF -gt 7 ] && [ $DIFF -le 30 ]; then ((num_weeks = num_weeks + 1)); fi
+# 	if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
+# 	if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
+# 	done
+# 	if [ $same_day -gt 1 ]; then clean_same_day; fi
+# 	if [ $num_days -gt 7 ]; then clean_day; fi
+# 	if [ $num_weeks -gt 4 ]; then clean_week; fi
+# 	if [ $num_months -gt 12 ]; then clean_month; fi
+	
+# 	echo $num_years $num_months $num_weeks $num_days $same_day
+# 	cd $CURR_DIR
+# }
+
+# timestamp_diff() {
+# 	date0=${1::10}
+# 	time0=${1:(-8)}
+# 	time0=$(echo ${time0} | tr "-" ":" | tr "_" " ")
+
+# 	date1=${2::10}
+# 	time1=${2:(-8)}
+# 	time1=$(echo ${time1} | tr "-" ":" | tr "_" " ")
+
+# 	x=$(date --date="${date0} ${time0}" +%s)
+# 	y=$(date --date="${date1} ${time1}" +%s)
+
+# 	if [ "${x}" -lt "${y}" ]; then
+# 		tmp=${x}
+# 		x=${y}
+# 		y=${tmp}
+# 	fi
+
+# 	DIFF=$(((${x} - ${y}) / 86400))
+# }
+# get_prev_week() {
+# 	SUN=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Sunday")
+# 	MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday")
+# 	timestamp_diff ${MON} ${SUN}
+# 	if [ ${DIFF} -eq 1 ]; then
+# 		MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday -1 week")
+# 	fi
+# }
+
 check_config(){
 	if [ ! -d $ROOT_BAKUPS_DIR ]; then
 		echo CREATE $ROOT_BAKUPS_DIR DIRECTORYS
@@ -60,6 +119,7 @@ get_credential() {
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
 }
+
 conduct_mysql_backup() {
 	USER=$1
 	PASSWORD=$2
@@ -114,6 +174,7 @@ conduct_mongo_backup() {
 
 	echo Dump COMPLETED $(date) >>$BACKUPS_DIR/$SRVNAME/log	
 }
+
 conduct_backup() {
 	mkdir -p $BACKUPS_DIR/$1
 	get_credential $1
@@ -135,6 +196,7 @@ conduct_backup() {
 		echo ERROR on $1 BACKUP!!!!!
 	fi
 }
+
 compare_dates() {
 	date0=${1::10}
 	time0=${1:(-8)}
@@ -155,34 +217,7 @@ compare_dates() {
 		RESULT=0
 	fi
 }
-timestamp_diff() {
-	date0=${1::10}
-	time0=${1:(-8)}
-	time0=$(echo ${time0} | tr "-" ":" | tr "_" " ")
 
-	date1=${2::10}
-	time1=${2:(-8)}
-	time1=$(echo ${time1} | tr "-" ":" | tr "_" " ")
-
-	x=$(date --date="${date0} ${time0}" +%s)
-	y=$(date --date="${date1} ${time1}" +%s)
-
-	if [ "${x}" -lt "${y}" ]; then
-		tmp=${x}
-		x=${y}
-		y=${tmp}
-	fi
-
-	DIFF=$(((${x} - ${y}) / 86400))
-}
-get_prev_week() {
-	SUN=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Sunday")
-	MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday")
-	timestamp_diff ${MON} ${SUN}
-	if [ ${DIFF} -eq 1 ]; then
-		MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday -1 week")
-	fi
-}
 move_to_directory() {
 	
 	CURRENT_DAY=$(date +"%a")
@@ -199,18 +234,20 @@ move_to_directory() {
 		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/day_backups\/$TIMESTAMP.tgz
 	fi
 }
+
 my_clean_old() {
 	clean_backup_directories "day_backups" 7
 	clean_backup_directories "week_backups" 4
 	clean_backup_directories "month_backups" 12
 	clean_backup_directories "year_backups" 5
 }
+
 delete_last_backup() {
 	date=${TIMESTAMP::10}
 	oldest_file=$TIMESTAMP	
 	for filename in $ROOT_BAKUPS_DIR\/$1\/*; do
-		# file=${filename:(-23):19}
-		file=${filename:(-19):19}
+		file=${filename:(-23):19}
+		# file=${filename:(-19):19}
 		# echo "filename: $filename file:$file"
 		compare_dates $file $oldest_file
 		if [ $RESULT -eq 1 ]; then
@@ -218,16 +255,16 @@ delete_last_backup() {
 		fi	
 	done
 	for filename in $ROOT_BAKUPS_DIR\/$1\/*; do
-		# file=${filename:(-23):19}
-		file=${filename:(-19):19}
+		file=${filename:(-23):19}
+		# file=${filename:(-19):19}
 		if [ "${file}" == "${oldest_file}" ]; then
 			rm -rf $filename
 		fi	
 	done
 }
+
 clean_backup_directories() {
 	DELETE_DIR=$ROOT_BAKUPS_DIR\/$1
-	# find . ! -name . -prune -print | grep -c / 
 	num_files=$(ls -q ${DELETE_DIR} | wc -l)
 
 	while [ $num_files -gt $2 ]; do
@@ -239,35 +276,6 @@ clean_backup_directories() {
 		fi
 		num_files=$new_num_files
 	done
-	# while [ $num_files -gt 7 ]; do
-}
-clean_old() {
-	same_day=0
-	num_days=0
-	num_weeks=0
-	num_months=0
-	num_years=0
-	CURR_DIR=`pwd`
-	cd $ROOT_BAKUPS_DIR
-	for file in *; do
-	echo $file
-	filedate=${file//.tgz/}
-	echo $filedate
-timestamp_diff $TIMESTAMP $filedate
-echo $DIFF
-	if [ $DIFF -gt 365 ]; then ((num_years = num_years + 1)); fi
-	if [ $DIFF -gt 30 ] && [ $DIFF -le 365 ]; then ((num_months = num_months + 1)); fi
-	if [ $DIFF -gt 7 ] && [ $DIFF -le 30 ]; then ((num_weeks = num_weeks + 1)); fi
-	if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
-	if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
-	done
-	if [ $same_day -gt 1 ]; then clean_same_day; fi
-	if [ $num_days -gt 7 ]; then clean_day; fi
-	if [ $num_weeks -gt 4 ]; then clean_week; fi
-	if [ $num_months -gt 12 ]; then clean_month; fi
-	
-	echo $num_years $num_months $num_weeks $num_days $same_day
-	cd $CURR_DIR
 }
 
 simulate() {
@@ -293,6 +301,7 @@ simulate() {
 		((i=$i+1))
 	done
 }
+
 main() {
 	check_config
 	for tok in ${TOKENS[@]}; do
