@@ -312,6 +312,7 @@ main() {
 	rm -rf $BACKUPS_DIR
 	move_to_directory
 	my_clean_old
+	echo 'hello world'
 }
 
 main
