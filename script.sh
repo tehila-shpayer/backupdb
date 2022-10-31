@@ -241,7 +241,6 @@ my_clean_old() {
 	clean_backup_directories "month_backups" 12
 	clean_backup_directories "year_backups" 5
 }
-
 delete_last_backup() {
 	date=${TIMESTAMP::10}
 	oldest_file=$TIMESTAMP	
@@ -312,7 +311,7 @@ main() {
 	rm -rf $BACKUPS_DIR
 	move_to_directory
 	my_clean_old
-	echo 'hello world'
+	echo 'hello bucket bucket'
 }
 
 main
