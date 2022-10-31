@@ -1,11 +1,11 @@
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
-# TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
-TOKENS="hilmaAdminmysql8aws"
+TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
+# TOKENS="hilmaAdminmysql8aws"
 ROOT_BAKUPS_DIR="backups"
-BACKUP_DAY="Thu"
-BACKUP_MONTH="27"
-BACKUP_YEAR="27-10"
+BACKUP_DAY="Sun"
+BACKUP_MONTH="01"
+BACKUP_YEAR="01-01"
 check_config(){
 	if [ ! -d $ROOT_BAKUPS_DIR ]; then
 		echo CREATE $ROOT_BAKUPS_DIR DIRECTORYS
