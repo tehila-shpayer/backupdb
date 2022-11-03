@@ -1,7 +1,7 @@
 TIMESTAMP=$(date "+%Y-%m-%d_%H-%M-%S")
 DAYS="Mon Tue Wed Thu Fri Sat Sun"
-TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
-# TOKENS="hilmaAdminmysql8aws"
+# TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
+TOKENS="hilmaAdminmysql8aws"
 ROOT_BAKUPS_DIR="backups"
 BUCKET_KEY="backup-bucket-test-hilma"
 BUCKET="s3://${BUCKET_KEY}/"
