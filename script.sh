@@ -3,111 +3,20 @@ DAYS="Mon Tue Wed Thu Fri Sat Sun"
 # TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
 TOKENS="hilmaAdminmysql8aws"
 ROOT_BAKUPS_DIR="backups"
-BUCKET="s3://backup-bucket-test-hilma"
+BUCKET_KEY="backup-bucket-test-hilma"
+BUCKET="s3://${BUCKET_KEY}/"
 BACKUP_DAY="Sun"
 BACKUP_MONTH="01"
 BACKUP_YEAR="01-01"
 
-# clean_old() {
-# 	same_day=0
-# 	num_days=0
-# 	num_weeks=0
-# 	num_months=0
-# 	num_years=0
-# 	CURR_DIR=`pwd`
-# 	cd $ROOT_BAKUPS_DIR
-# 	for file in *; do
-# 	echo $file
-# 	filedate=${file//.tgz/}
-# 	echo $filedate
-# timestamp_diff $TIMESTAMP $filedate
-# echo $DIFF
-# 	if [ $DIFF -gt 365 ]; then ((num_years = num_years + 1)); fi
-# 	if [ $DIFF -gt 30 ] && [ $DIFF -le 365 ]; then ((num_months = num_months + 1)); fi
-# 	if [ $DIFF -gt 7 ] && [ $DIFF -le 30 ]; then ((num_weeks = num_weeks + 1)); fi
-# 	if [ $DIFF -le 7 ]&& [ $DIFF -ne 0 ]; then ((num_days = num_days + 1)); fi
-# 	if [ $DIFF -eq 0 ]; then ((same_day = same_day + 1)); fi
-# 	done
-# 	if [ $same_day -gt 1 ]; then clean_same_day; fi
-# 	if [ $num_days -gt 7 ]; then clean_day; fi
-# 	if [ $num_weeks -gt 4 ]; then clean_week; fi
-# 	if [ $num_months -gt 12 ]; then clean_month; fi
-	
-# 	echo $num_years $num_months $num_weeks $num_days $same_day
-# 	cd $CURR_DIR
-# }
-
-# timestamp_diff() {
-# 	date0=${1::10}
-# 	time0=${1:(-8)}
-# 	time0=$(echo ${time0} | tr "-" ":" | tr "_" " ")
-
-# 	date1=${2::10}
-# 	time1=${2:(-8)}
-# 	time1=$(echo ${time1} | tr "-" ":" | tr "_" " ")
-
-# 	x=$(date --date="${date0} ${time0}" +%s)
-# 	y=$(date --date="${date1} ${time1}" +%s)
-
-# 	if [ "${x}" -lt "${y}" ]; then
-# 		tmp=${x}
-# 		x=${y}
-# 		y=${tmp}
-# 	fi
-
-# 	DIFF=$(((${x} - ${y}) / 86400))
-# }
-# get_prev_week() {
-# 	SUN=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Sunday")
-# 	MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday")
-# 	timestamp_diff ${MON} ${SUN}
-# 	if [ ${DIFF} -eq 1 ]; then
-# 		MON=$(date "+%Y-%m-%d_%H-%M-%S" --date="last Monday -1 week")
-# 	fi
-# }
-
-make_dirs() {
-	dir_name=$1
-	mkdir -p $ROOT_BAKUPS_DIR/${dir_name}_backups
-	log_path=$ROOT_BAKUPS_DIR/${dir_name}_backups/log
-	touch $log_path
-	echo "CREATING " ${dir_name} "BACKUP DIRECTORY" > $log_path
-}
 check_config(){
-	aws s3 ls $BUCKET/$ROOT_BAKUPS_DIR
-	if [ $? -eq 0 ]; then
-		echo CREATE $ROOT_BAKUPS_DIR DIRECTORYS
-		mkdir -p $ROOT_BAKUPS_DIR
-		make_dirs "day"
-		make_dirs "week"
-		make_dirs "month"
-		make_dirs "year"
-		aws s3 sync --delete $ROOT_BAKUPS_DIR $BUCKET
-		if [ ${?} -ne 0 ]; then
-			echo "Error creating $ROOT_BAKUPS_DIR!"
-			echo "Script will now exit..."
-			exit 1
-		fi
-	fi
-
-	BACKUPS_DIR=$ROOT_BAKUPS_DIR
-	DAY="BACKUP_DAY"
-
-	if [ -z ${!DAY} ]; then
-		echo "The length of variable: \$${DAY} is 0 (zero)!"
-		echo "Script will now exit..."
-		exit 4
-	fi	
-
-	mkdir -p "$BACKUPS_DIR/$TIMESTAMP"
-	BACKUPS_DIR=$BACKUPS_DIR/$TIMESTAMP
+	mkdir -p "$TIMESTAMP"
+	BACKUPS_DIR=$TIMESTAMP
 }
 
 get_credential() {
 
 	SQLSRV=$1
-	# awsAdminSecretName=$SQLSRV
-	# SECRET_NAME=${SQLSRV}-${dbName}
 
 	TMP_FILE=tmp.json
 	# getting secret for mongoAdmin
@@ -235,50 +144,59 @@ move_to_directory() {
 	CURRENT_YEAR_DATE=$(date +"%m-%d")	
 
 	if [ $CURRENT_YEAR_DATE == $BACKUP_YEAR ]; then
-		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/year_backups\/$TIMESTAMP.tgz 
+		aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}year_backups/ 
 	elif [ $CURRENT_MONTH_DATE == $BACKUP_MONTH ]; then
-		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/month_backups\/$TIMESTAMP.tgz
+		aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}month_backups/
 	elif [ $CURRENT_DAY == $BACKUP_DAY ]; then
-		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/week_backups\/$TIMESTAMP.tgz
+		aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}week_backups/
 	else
-		mv $BACKUPS_DIR.tgz $ROOT_BAKUPS_DIR\/day_backups\/$TIMESTAMP.tgz
+		aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}day_backups/
 	fi
 }
 
-my_clean_old() {
+clean_old() {
 	clean_backup_directories "day_backups" 7
 	clean_backup_directories "week_backups" 4
 	clean_backup_directories "month_backups" 12
-	clean_backup_directories "year_backups" 5
+	clean_backup_directories "year_backups" 10
 }
 delete_last_backup() {
+
 	date=${TIMESTAMP::10}
-	oldest_file=$TIMESTAMP	
-	for filename in $ROOT_BAKUPS_DIR\/$1\/*; do
-		file=${filename:(-23):19}
-		# file=${filename:(-19):19}
-		# echo "filename: $filename file:$file"
-		compare_dates $file $oldest_file
-		if [ $RESULT -eq 1 ]; then
-			oldest_file=$file
+	oldest_file=$TIMESTAMP
+	folder=$1	
+	query='Contents[?starts_with(Key,`'$folder'`)].Key'
+	aws s3api list-objects --bucket ${BUCKET_KEY} --query $query > TMP_FILE
+	while read filepath; do
+	    if [[ ! $filepath == *log* ]]; then 
+			file=${filepath:(-24):19}
+			compare_dates $file $oldest_file
+			if [ $RESULT -eq 1 ]; then
+				oldest_file=$file
+			fi	 
 		fi	
-	done
-	for filename in $ROOT_BAKUPS_DIR\/$1\/*; do
-		file=${filename:(-23):19}
-		# file=${filename:(-19):19}
-		if [ "${file}" == "${oldest_file}" ]; then
-			rm -rf $filename
-		fi	
-	done
+	done <<< "$(jq -c '.[]' TMP_FILE)"
+	while read filepath; do
+	    if [[ ! $filepath == *log* ]]; then 
+			file=${filepath:(-24):19}
+			if [ "${file}" == "${oldest_file}" ]; then
+				filepath=${filepath:1}
+				filepath=${filepath::(-1)}
+				aws s3 rm $BUCKET${filepath}
+			fi 
+		fi 
+	done <<< "$(jq -c '.[]' TMP_FILE)"
+
+	rm TMP_FILE
 }
 
 clean_backup_directories() {
-	DELETE_DIR=$ROOT_BAKUPS_DIR\/$1
-	num_files=$(ls -q ${DELETE_DIR} | wc -l)
+	DELETE_DIR=$BUCKET$1/
+	num_files=$(aws s3 ls ${DELETE_DIR} | wc -l)
 
 	while [ $num_files -gt $2 ]; do
 		delete_last_backup $1
-		new_num_files=$(ls -q ${DELETE_DIR} | wc -l)
+		new_num_files=$(aws s3 ls ${DELETE_DIR} | wc -l)
 		if [ $num_files -eq $new_num_files ]; then 
 			echo "ERROR on deleting old backups for $1 directory"
 			exit 1
@@ -289,44 +207,41 @@ clean_backup_directories() {
 
 simulate() {
 	i=0
-	while [ $i -lt 800  ]; do
+	while [ $i -lt 700  ]; do
 		y=$(date --date="2020-01-01 08:00:00" +%s)
 		((y = $y + 86400*$i))
 		TIMESTAMP=$(date -u -d @$y "+%Y-%m-%d_%H-%M-%S")
 		CURRENT_DAY=$(date -u -d @$y "+%a")
 		CURRENT_MONTH_DATE=$(date -u -d @$y "+%d")
-		CURRENT_YEAR_DATE=$(date -u -d @$y "+%m-%d")	
-		cat $TIMESTAMP > $TIMESTAMP
+		CURRENT_YEAR_DATE=$(date -u -d @$y "+%m-%d")
+
+		check_config
+		tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+		rm -rf $BACKUPS_DIR
 		if [ $CURRENT_YEAR_DATE == $BACKUP_YEAR ]; then
-			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/year_backups\/$TIMESTAMP 
+			aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}year_backups/ 
 		elif [ $CURRENT_MONTH_DATE == $BACKUP_MONTH ]; then
-			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/month_backups\/$TIMESTAMP
+			aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}month_backups/
 		elif [ $CURRENT_DAY == $BACKUP_DAY ]; then
-			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/week_backups\/$TIMESTAMP
+			aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}week_backups/
 		else
-			mv $TIMESTAMP $ROOT_BAKUPS_DIR\/day_backups\/$TIMESTAMP
+			aws s3 mv $BACKUPS_DIR.tgz ${BUCKET}day_backups/
 		fi
-		my_clean_old
+		clean_old
 		((i=$i+1))
 	done
 }
 
 main() {
-	aws s3 ls $BUCKET > res.txt
-	# if [ $res == "PRE" $ROOT_BAKUPS_DIR ]; then
-	# 	echo 'exist'
-	# fi
-	# check_config
-	# for tok in ${TOKENS[@]}; do
-	# 	echo BACKING UP ${tok}
-	# 	conduct_backup ${tok}
-	# done
-	# tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	# rm -rf $BACKUPS_DIR
-	# move_to_directory
-	# my_clean_old
-	# aws s3 ls $ROOT_BAKUPS_DIR > tmp
-	# aws s3 cp tmp $ROOT_BAKUPS_DIR
+	check_config
+	for tok in ${TOKENS[@]}; do
+		echo BACKING UP ${tok}
+		conduct_backup ${tok}
+	done
+	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+	rm -rf $BACKUPS_DIR
+	move_to_directory
+	clean_old
 }
 
-main
+simulate
