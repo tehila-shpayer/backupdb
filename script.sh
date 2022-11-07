@@ -241,7 +241,7 @@ main() {
 	tar -czvf $TIMESTAMP.tgz $TIMESTAMP
 	# tar -czvf testzip.tgz testzip
 	# rm -rf $BACKUPS_DIR
-	move_to_directory
+	# move_to_directory
 	clean_old
 }
 
