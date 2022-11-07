@@ -37,7 +37,6 @@ get_credential() {
 	HOST=$(jq -r '.host' $TMP_FILE)
 	PORT=$(jq -r '.port' $TMP_FILE)
 	rm $TMP_FILE
-	rm tmp.json
 }
 
 conduct_mysql_backup() {
