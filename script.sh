@@ -239,8 +239,8 @@ main() {
 		conduct_backup ${tok}
 	done
 	# tar -czvf $TIMESTAMP.tgz $TIMESTAMP
-	echo timestamp: $TIMESTAMP BACKUPS_DIR: $BACKUPS_DIR
 	tar -czvf $BACKUPS_DIR.tgz $BACKUPS_DIR
+	tar -xf test.tgz $TIMESTAMP
 	# rm -rf $BACKUPS_DIR
 	# move_to_directory
 	clean_old
