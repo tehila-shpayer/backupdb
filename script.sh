@@ -240,7 +240,8 @@ main() {
 	done
 	# tar -czvf $TIMESTAMP.tgz $TIMESTAMP
 	tar -czvf $BACKUPS_DIR.tgz $BACKUPS_DIR
-	tar -xf test.tgz $TIMESTAMP
+	tar -czvf test.tgz $TIMESTAMP
+	tar -xf test.tgz
 	# rm -rf $BACKUPS_DIR
 	# move_to_directory
 	clean_old
