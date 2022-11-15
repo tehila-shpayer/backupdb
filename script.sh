@@ -3,13 +3,20 @@ DAYS="Mon Tue Wed Thu Fri Sat Sun"
 # TOKENS="mongo_admin_carmel6000 mongo_admin_Hospikol hilmaAdminmysql8aws hilmaAdminmysql8b"
 TOKENS="hilmaAdminmysql8aws"
 ROOT_BAKUPS_DIR="backups"
-BUCKET_KEY="backup-bucket-test-hilma"
+BUCKET_KEY="backup-databases-hilma-permmision-test"
 BUCKET="s3://${BUCKET_KEY}/"
 BACKUP_DAY="Sun"
 BACKUP_MONTH="01"
 BACKUP_YEAR="01-01"
 
 check_config(){
+	RES=$(aws s3api list-buckets --query 'Buckets[?Name==`'"$BUCKET_KEY"'`].Name | [0]')
+	if [ $RES == 'null' ]; then
+		aws s3api create-bucket --bucket $BUCKET_KEY --region eu-west-1  --create-bucket-configuration LocationConstraint=eu-west-1
+		aws s3api put-public-access-block --bucket $BUCKET_KEY --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+		echo "CREATING NEW BUCKET ${BUCKET_KEY}"
+	fi 
+
 	mkdir -p "$TIMESTAMP"
 	BACKUPS_DIR=$TIMESTAMP
 }
@@ -234,14 +241,14 @@ simulate() {
 
 main() {
 	check_config
-	for tok in ${TOKENS[@]}; do
-		echo BACKING UP ${tok}
-		conduct_backup ${tok}
-	done
-	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
-	rm -rf $BACKUPS_DIR
-	move_to_directory
-	clean_old
+# 	for tok in ${TOKENS[@]}; do
+# 		echo BACKING UP ${tok}
+# 		conduct_backup ${tok}
+# 	done
+# 	tar -C $BACKUPS_DIR/.. -czvf $BACKUPS_DIR/../$TIMESTAMP.tgz $TIMESTAMP
+# 	rm -rf $BACKUPS_DIR
+# 	move_to_directory
+# 	clean_old
 }
 
 simulate
