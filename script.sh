@@ -251,4 +251,4 @@ main() {
 # 	clean_old
 }
 
-simulate
+main
